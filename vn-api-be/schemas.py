@@ -3,6 +3,12 @@ from typing import List, Optional
 from datetime import date
 
 
+class NovelSearchResponse(BaseModel):
+    id: str
+    title: str
+    image_url: str
+
+ 
 class NovelsListResponse(BaseModel):
     id: int
     title: str
@@ -13,10 +19,6 @@ class NovelsListResponse(BaseModel):
 
 class NovelsDetailResponse(BaseModel):
     id: int
-    my_review: Optional[str] = None
-    status: str
-    language: str
-    my_rating: Optional[int] = None
     vndb_id: str
     title: str
     description: Optional[str] = None
@@ -25,9 +27,13 @@ class NovelsDetailResponse(BaseModel):
     released: Optional[date] = None
     length: Optional[int] = None  # 1-5
     length_minutes: Optional[int] = None
-    rating: Optional[float] = None
+    user_rating: Optional[float] = None
     votecount: Optional[int] = None
-    user_rating: int
+
+    my_review: Optional[str] = None
+    status: str
+    language: str
+    my_rating: Optional[float] = None
     tags: List["TagNovelResponce"] = []
 
 
@@ -37,10 +43,10 @@ class TagNovelResponce(BaseModel):
 
 
 class NovelCreate(BaseModel):
-    search_name: str  # ID новеллы на VNDB
     status: str = "reading"  # Статус: "reading", "completed" или другие
     my_review: Optional[str] = None  # Личный обзор
     my_rating: Optional[int] = None  # Личная оценка
+    language: str = "russian"
     tags: List[str] = []
 
 
