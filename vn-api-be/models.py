@@ -13,21 +13,20 @@ novel_tag = Table(
     Column("tags_id", Integer, ForeignKey("tags.id"))
 )
 
-
 class Novel(Base):
     __tablename__ = "novels"
     id = Column(Integer, primary_key=True)
-    title = Column(String, unique=True)
-    description = Column(String, required=False ,unique=False)
-    my_rating = Column(Integer, unique=False)
+    title = Column(String, nullable=False, unique=True)
+    description = Column(String, nullable=True, unique=False)
+    my_rating = Column(Integer, nullable=True, unique=False)
     tags = relationship("Tag", secondary="novel_tag", back_populates="novels")
 
 
 class Tag(Base):
     __tablename__ = "tags"
     id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True)
-    description = Column(String, required=False ,unique=False)
+    name = Column(String, nullable=False, unique=True)
+    description = Column(String, nullable=True, unique=False)
     novels = relationship("Novel", secondary="novel_tag", back_populates="tags")
 
 
