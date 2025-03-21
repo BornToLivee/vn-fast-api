@@ -21,7 +21,7 @@ class Novel(Base):
     my_review = Column(Text, nullable=True)
     status = Column(String, default="reading")
     language = Column(String, default="russian")
-    my_rating = Column(Integer, nullable=True, unique=False)
+    my_rating = Column(Float, nullable=True, unique=False)
     # VNDB columns
     vndb_id = Column(String, unique=True, nullable=False)
     title = Column(String, nullable=False)
@@ -31,7 +31,6 @@ class Novel(Base):
     released = Column(Date)
     length = Column(Integer) # from 1 to 5
     length_minutes = Column(Integer, nullable=True)
-    rating = Column(Float, nullable=True)
     votecount = Column(Integer)  # "reading" или "completed"
     user_rating = Column(Integer, default=0)
 
