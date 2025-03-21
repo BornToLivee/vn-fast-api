@@ -4,7 +4,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
 from .models import Novel, SessionLocal, Tag
-from .schemas import NovelCreate, NovelResponse
+from .schemas import NovelCreate, NovelResponse, TagCreate
 
 app = FastAPI()
 
@@ -47,3 +47,28 @@ def create_novel(novel: NovelCreate, db: Session = Depends(get_db)):
         db.refresh(db_novel)
 
     return db_novel
+
+
+@app.post("/tags/", response_model=TagCreate)
+def create_tag(tag: TagCreate, db: Session = Depends(get_db)):
+    db_tag = Tag(
+        name=tag.name,
+        description=tag.description
+    )
+
+    db.add(db_tag)
+    db.commit()
+    db.refresh(db_tag)
+
+    if tag.novels_id:
+        for novel_id in tag.novels_id:
+            novel = db.query(Novel).filter(Novel.id == novel_id).first()
+            if novel:
+                db_tag.novels.append(novel)
+            else:
+                raise HTTPException(status_code=404, detail=f"Novel with id {novel_id} not found")
+            
+        db.commit()
+        db.refresh(db_tag)
+    
+    return db_tag
