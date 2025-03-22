@@ -1,6 +1,4 @@
 import pytest
-import httpx
-import requests
 from unittest.mock import AsyncMock
 from backend.app.services.vndb import search_vndb_novels_by_name, fetch_vndb_novel
 
@@ -15,12 +13,10 @@ async def test_search_vndb_novels_by_name(mocker):
 
     mock_post = mocker.patch("httpx.AsyncClient.post", new_callable=AsyncMock)
     mock_post.return_value.status_code = 200
-    mock_post.return_value.json = lambda: mock_response  # Просто возвращаем словарь
+    mock_post.return_value.json = lambda: mock_response 
 
-    # Вызываем асинхронную функцию
     result = await search_vndb_novels_by_name("Test")
     
-    # Проверка результата
     assert len(result) == 2
     assert result[0].id == "1"
     assert result[0].title == "Test Novel 1"
