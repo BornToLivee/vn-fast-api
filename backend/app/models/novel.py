@@ -1,14 +1,15 @@
 from sqlalchemy import Column, Integer, String, Text, Date, Float
 from sqlalchemy.orm import relationship
 
+from app.models.tag import Tag
 from app.models.base import Base
-from backend.app.models.associations import novel_tag
+from app.models.associations import novel_tag
 
 class Novel(Base):
     __tablename__ = "novels"
     # My columns
     id = Column(Integer, primary_key=True)
-    tags = relationship("Tag", secondary=novel_tag, back_populates="novels")
+    tags = relationship(Tag, secondary=novel_tag, back_populates="novels")
     my_review = Column(Text, nullable=True)
     status = Column(String, default="reading")
     language = Column(String, default="russian")

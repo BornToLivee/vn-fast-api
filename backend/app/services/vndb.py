@@ -14,7 +14,6 @@ async def search_vndb_novels_by_name(query: str):
     
     async with httpx.AsyncClient() as client:
         response = await client.post(f"{VNDB_API_URL}/vn", json=json_payload)
-        
         if response.status_code == 200:
             novels = response.json()["results"]
             result = []
