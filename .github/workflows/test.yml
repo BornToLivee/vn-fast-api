@@ -25,15 +25,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set AWS Region
-        run: echo "AWS_REGION=eu-north-1" >> $GITHUB_ENV  # Устанавливаем регион AWS
-
       - name: Set AWS Credentials
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-north-1  # Устанавливаем регион для AWS
         run: |
-          echo "AWS Access Key and Secret are set for the session"
+          echo "AWS Access Key, Secret, and Region are set for the session"
+          echo "AWS_SECRET_ACCESS_KEY starts with: ${AWS_SECRET_ACCESS_KEY:0:4}..."
 
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)/backend" >> $GITHUB_ENV 
