@@ -7,6 +7,8 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from unittest.mock import MagicMock
+
 
 from app.main import app
 from app.database.settings import Base, get_db
@@ -27,7 +29,15 @@ def override_get_db():
     finally:
         db.close()
 
+@pytest.fixture(autouse=True)
+def mock_cloudwatch_logger():
+    # Мокаем CloudWatchLogger, чтобы не обращаться к AWS
+    mock_logger = MagicMock()
+    with pytest.MonkeyPatch.context() as mpatch:
+        mpatch.setattr("app.core.logger.CloudWatchLogger", mock_logger)
+        yield mock_logger
 
+    
 @pytest.fixture()
 def test_db():
     Base.metadata.create_all(bind=engine)
