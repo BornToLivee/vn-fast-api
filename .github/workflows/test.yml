@@ -27,4 +27,4 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest backend/tests/test_routes.py
+          PYTHONPATH=./backend pytest backend/tests/test_routes.py
