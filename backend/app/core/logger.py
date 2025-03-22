@@ -50,5 +50,6 @@ class CloudWatchLogger:
 
 logger = CloudWatchLogger(
     log_group="vn-fast-api-logs",
-    stream_name="local-log-stream"
+    stream_name="local-log-stream",
+    region_name="eu-north-1"
 )
