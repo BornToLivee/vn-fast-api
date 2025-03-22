@@ -176,3 +176,8 @@ cython_debug/
 
 # DB files
  *.db
+
+ .vscode*
+ .vscode/*
+ .idea/
+ .idea/*
