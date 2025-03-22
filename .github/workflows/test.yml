@@ -33,6 +33,7 @@ jobs:
         run: |
           echo "AWS Access Key, Secret, and Region are set for the session"
           echo "AWS_SECRET_ACCESS_KEY starts with: ${AWS_SECRET_ACCESS_KEY:0:4}..."
+          echo "AWS_REGION: ${AWS_REGION}"
 
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)/backend" >> $GITHUB_ENV 
