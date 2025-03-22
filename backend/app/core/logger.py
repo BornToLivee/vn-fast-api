@@ -3,7 +3,7 @@ import watchtower
 import boto3
 
 class CloudWatchLogger:
-    def __init__(self, log_group: str, stream_name: str, region_name: str = "us-east-1"):
+    def __init__(self, log_group: str, stream_name: str, region_name: str = "eu-north-1"):
         """
         Initialization of the logger for CloudWatch.
 
