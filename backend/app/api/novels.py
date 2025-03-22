@@ -20,13 +20,13 @@ async def novel_search(query: str):
     return novels
 
 
-@router.get("/novels/", response_model=List[NovelsListResponse])
+@router.get("/novels/", response_model=List[NovelsListResponse] | str)
 def read_novels(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     novels = db.query(Novel).offset(skip).limit(limit).all()
 
     if not novels:
         logger.log("WARNING", "No novels found")
-        return []
+        return "No novels found yet"
 
     logger.log("INFO", f"Found {len(novels)} novels")
     return novels
