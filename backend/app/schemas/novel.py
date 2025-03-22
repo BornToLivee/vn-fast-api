@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date
 
+from app.schemas.tag import TagNovelResponse
+
 
 class NovelSearchResponse(BaseModel):
     id: str
@@ -14,7 +16,7 @@ class NovelsListResponse(BaseModel):
     title: str
     status: str
     my_rating: int 
-    tags: List["TagNovelResponce"] = []
+    tags: List[TagNovelResponse] = []
 
 
 class NovelsDetailResponse(BaseModel):
@@ -34,24 +36,12 @@ class NovelsDetailResponse(BaseModel):
     status: str
     language: str
     my_rating: Optional[float] = None
-    tags: List["TagNovelResponce"] = []
-
-
-class TagNovelResponce(BaseModel):
-    id: int
-    name: str
+    tags: List[TagNovelResponse] = []
 
 
 class NovelCreate(BaseModel):
     status: str = "reading"  # Статус: "reading", "completed" или другие
-    my_review: Optional[str] = None  # Личный обзор
-    my_rating: Optional[int] = None  # Личная оценка
+    my_review: Optional[str] = None
+    my_rating: Optional[int] = None
     language: str = "russian"
     tags: List[str] = []
-
-
-class TagCreate(BaseModel):
-    id: int
-    name: str
-    description: str
-    novels_id: Optional[List[int]] = []

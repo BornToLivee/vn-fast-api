@@ -1,33 +1,26 @@
 from typing import List
 from datetime import datetime
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 
-from .models import Novel, SessionLocal, Tag
-from .schemas import NovelCreate, NovelSearchResponse, TagCreate, NovelsListResponse, NovelsDetailResponse
-from .helper import search_vndb_novels_by_name, fetch_vndb_novel
-from ..logger import logger
+from app.models.novel import Novel
+from app.models.tag import Tag
+from app.schemas.novel import NovelCreate, NovelSearchResponse, NovelsListResponse, NovelsDetailResponse
+from app.services.vndb import search_vndb_novels_by_name, fetch_vndb_novel
+from app.core.logger import logger
+from app.database.settings import get_db
 
-app = FastAPI()
+router = APIRouter()
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-@app.get("/novels/search", response_model=List[NovelSearchResponse])
+@router.get("/novels/search", response_model=List[NovelSearchResponse])
 async def novel_search(query: str):
     logger.log("INFO", f"Search query: {query}")
     novels = await search_vndb_novels_by_name(query)
     return novels
 
 
-@app.get("/novels/", response_model=List[NovelsListResponse])
+@router.get("/novels/", response_model=List[NovelsListResponse])
 def read_novels(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     novels = db.query(Novel).offset(skip).limit(limit).all()
 
@@ -39,7 +32,7 @@ def read_novels(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return novels
 
 
-@app.get("/novels/{novel_id}", response_model=NovelsDetailResponse)
+@router.get("/novels/{novel_id}", response_model=NovelsDetailResponse)
 def read_novel(novel_id: int, db: Session = Depends(get_db)):
     novel = db.query(Novel).filter(Novel.id == novel_id).first()
     if not novel:
@@ -49,7 +42,7 @@ def read_novel(novel_id: int, db: Session = Depends(get_db)):
     return novel
 
 
-@app.post("/novels/", response_model=NovelsDetailResponse)
+@router.post("/novels/", response_model=NovelsDetailResponse)
 def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depends(get_db)):
     
     """

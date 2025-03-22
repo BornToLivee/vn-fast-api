@@ -1,9 +1,9 @@
 import httpx
 import requests
 
-from .schemas import NovelSearchResponse
-from ..logger import logger
-from ..config import VNDB_API_URL
+from app.schemas.novel import NovelSearchResponse
+from app.core.logger import logger
+from app.core.config import VNDB_API_URL
 
 
 async def search_vndb_novels_by_name(query: str):
@@ -26,7 +26,7 @@ async def search_vndb_novels_by_name(query: str):
                 ))
 
             logger.log("INFO", f"Found {len(result)} novels for query: {query}")
-            return result
+            return result   
 
         else:
             logger.log("ERROR", f"Error searching for novels: {response.status_code} - {response.text}")

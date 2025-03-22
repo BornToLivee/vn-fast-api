@@ -1,0 +1,13 @@
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
+
+from app.models.base import Base
+from app.models.associations import novel_tag
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+    description = Column(String, nullable=True, unique=False)
+    novels = relationship("Novel", secondary=novel_tag, back_populates="tags")
