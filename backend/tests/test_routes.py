@@ -10,7 +10,7 @@ from app.database.settings import get_db
 from app.models.base import Base
 from app.models.novel import Novel
 
-SQLALCHEMY_DATABASE_URL = "sqlite://:memory:"
+SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False},
@@ -20,7 +20,6 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 client = TestClient(app)
-Base.metadata.create_all(bind=engine)
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_database():
