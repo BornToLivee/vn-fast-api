@@ -172,3 +172,14 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+# DB files
+*.db
+
+.vscode*
+.vscode/*
+.idea/
+.idea/*
+
+*.code-workspace
