@@ -4,6 +4,7 @@ from backend.app.services.vndb import search_vndb_novels_by_name, fetch_vndb_nov
 
 @pytest.mark.asyncio
 async def test_search_vndb_novels_by_name(mocker):
+    mocker.patch("watchtower.CloudWatchLogHandler")
     mock_response = {
         "results": [
             {"id": "1", "title": "Test Novel 1", "image": {"url": "https://example.com/1.jpg"}},
@@ -25,6 +26,7 @@ async def test_search_vndb_novels_by_name(mocker):
 
 
 def test_fetch_vndb_novel(mocker):
+    mocker.patch("watchtower.CloudWatchLogHandler")
     mock_response = {
         "results": [
             {
