@@ -17,7 +17,11 @@ class CloudWatchLogger:
         self.region_name = region_name
         self.logger = logging.getLogger("cloudwatch_logger")
 
-        self.session = boto3.Session(region_name=self.region_name)
+        self.session = boto3.Session(
+            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+            region_name=self.region_name
+        )
 
         self.cloudwatch_handler = watchtower.CloudWatchLogHandler(
             log_group=self.log_group,
