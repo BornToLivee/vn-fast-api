@@ -2,6 +2,9 @@ import logging
 import watchtower
 import boto3
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class CloudWatchLogger:
     def __init__(self, log_group: str, stream_name: str, region_name: str = "eu-north-1"):
@@ -18,8 +21,8 @@ class CloudWatchLogger:
         self.logger = logging.getLogger("cloudwatch_logger")
 
         self.session = boto3.Session(
-            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+            aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY"),
             region_name=self.region_name
         )
 
@@ -28,8 +31,6 @@ class CloudWatchLogger:
             stream_name=self.stream_name,
             boto3_client=self.session.client(
                 "logs",
-                aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-                aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
                 region_name=self.region_name
                 )
         )
@@ -62,5 +63,5 @@ class CloudWatchLogger:
 logger = CloudWatchLogger(
     log_group="vn-fast-api-logs",
     stream_name="local-log-stream",
-    region_name="eu-north-1"
+    region_name="eu-north-1",
 )
