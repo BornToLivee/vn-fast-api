@@ -24,6 +24,7 @@ client = TestClient(app)
 def setup_database():
     app.dependency_overrides[get_db] = override_get_db
     tear_down()
+    Base.metadata.create_all(bind=engine)
     yield
     tear_down()
 
