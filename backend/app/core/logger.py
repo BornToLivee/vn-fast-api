@@ -21,6 +21,7 @@ class CloudWatchLogger:
         self.cloudwatch_handler = watchtower.CloudWatchLogHandler(
             log_group=self.log_group,
             stream_name=self.stream_name,
+            boto3_client=self.session.client("logs",region_name=self.region_name)
         )
 
         self.logger.setLevel(logging.DEBUG)
