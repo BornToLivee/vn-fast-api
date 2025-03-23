@@ -22,9 +22,12 @@ class CloudWatchLogger:
         self.cloudwatch_handler = watchtower.CloudWatchLogHandler(
             log_group=self.log_group,
             stream_name=self.stream_name,
-            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-            boto3_client=self.session.client("logs",region_name=self.region_name)
+            boto3_client=self.session.client(
+                "logs",
+                aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+                aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+                region_name=self.region_name
+                )
         )
 
         self.logger.setLevel(logging.DEBUG)
