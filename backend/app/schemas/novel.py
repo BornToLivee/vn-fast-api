@@ -37,11 +37,13 @@ class NovelsDetailResponse(BaseModel):
     language: str
     my_rating: Optional[float] = None
     tags: List[TagNovelResponse] = []
+    completed_date: Optional[date] = None
 
 
 class NovelCreate(BaseModel):
-    status: str = "reading"  # Статус: "reading", "completed" или другие
+    status: str = "READING"
     my_review: Optional[str] = None
     my_rating: Optional[int] = None
-    language: str = "russian"
+    language: str = "RUSSIAN"
+    completed_date: Optional[date] = None
     tags: List[str] = []
