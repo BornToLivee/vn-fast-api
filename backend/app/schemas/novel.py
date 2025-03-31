@@ -15,7 +15,8 @@ class NovelsListResponse(BaseModel):
     id: int
     title: str
     status: str
-    my_rating: int 
+    my_rating: int
+    image_url: str
     tags: List[TagNovelResponse] = []
 
 
