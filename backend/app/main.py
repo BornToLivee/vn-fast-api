@@ -2,7 +2,7 @@ import sys
 import os
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from app.middlewares import add_cors
+from ..app.middlewares import add_cors
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
