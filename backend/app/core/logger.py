@@ -2,7 +2,9 @@ import logging
 import watchtower
 import boto3
 import os
+import traceback
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -56,12 +58,18 @@ class CloudWatchLogger:
             self.logger.error(f"Unknown log level: {level}, message: {message}")
 
     def log_exception(self, message: str, exception: Exception):
-        """Logging exceptions with stack trace."""
-        self.logger.exception(f"{message}: {exception}")
+        """
+        Logging exceptions with full stack trace information.
+        
+        :param message: Custom message to log
+        :param exception: The exception object
+        """
+        stack_trace = ''.join(traceback.format_exception(type(exception), exception, exception.__traceback__))
+        self.logger.error(f"{message}\nStack trace:\n{stack_trace}")
     
 
 logger = CloudWatchLogger(
     log_group="vn-fast-api-logs",
-    stream_name="local-log-stream",
+    stream_name=f"local-log-stream{datetime.now().strftime('%Y-%m-%d')}",
     region_name="eu-north-1",
 )
