@@ -70,6 +70,6 @@ class CloudWatchLogger:
 
 logger = CloudWatchLogger(
     log_group="vn-fast-api-logs",
-    stream_name=f"local-log-stream{datetime.now().strftime('%Y-%m-%d')}",
+    stream_name=f"local-log-stream-{datetime.now().strftime('%Y-%m-%d')}",
     region_name="eu-north-1",
 )
