@@ -40,6 +40,7 @@ jobs:
           echo "AWS Access Key, Secret, and Region are set for the session"
           echo "AWS_SECRET_ACCESS_KEY starts with: ${AWS_SECRET_ACCESS_KEY:0:4}..."
           echo "AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}"
+          echo "DATABASE_URL=sqlite:///:memory:" >> .env
 
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)/backend" >> $GITHUB_ENV 
