@@ -7,7 +7,12 @@ from sqlalchemy.orm import Session
 from app.models.novel import Novel
 from app.models.tag import Tag
 from app.schemas.novel import NovelCreate, NovelSearchResponse, NovelsListResponse, NovelsDetailResponse
-from app.services.vndb import search_vndb_novels_by_name, fetch_vndb_novel
+from app.services.vndb import (
+    search_vndb_novels_by_name, 
+    fetch_vndb_novel, 
+    fetch_vndb_novel_tags,
+)
+from app.services.tag import create_or_get_tags
 from app.core.logger import logger
 from app.database.settings import get_db
 
@@ -43,8 +48,7 @@ def read_novel(novel_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/novels/", response_model=NovelsDetailResponse)
-def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depends(get_db)):
-    
+async def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depends(get_db)):
     """
     Create a new novel entry in the database using the provided VNDB ID and novel data.
 
@@ -59,7 +63,6 @@ def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depends(ge
     :param db: The database session dependency for performing database operations.
     
     :return: The newly created novel with its details.
-    :raises HTTPException: If the novel already exists or if VNDB details cannot be fetched.
     """
 
     existing_novel = db.query(Novel).filter(Novel.vndb_id == vndb_id).first()
@@ -71,7 +74,14 @@ def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depends(ge
     if not novel_info:
         logger.log("ERROR", f"Novel details not found for vndb_id {vndb_id}")
         raise HTTPException(status_code=404, detail="Novel details not found")
-
+    
+    # Get tags from VNDB
+    tag_data = await fetch_vndb_novel_tags(vndb_id)
+    if not tag_data:
+        logger.log("WARNING", f"Novel tags not found for vndb_id {vndb_id}")
+    
+    # Create or get tags from database
+    novel_tags = create_or_get_tags(tag_data, db)
 
     new_novel = Novel(
         vndb_id=novel_info["id"],
@@ -91,16 +101,9 @@ def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depends(ge
         language=novel_data.language
     )
 
-    tags = []
-
-    for tag_name in novel_data.tags:
-        tag = db.query(Tag).filter(Tag.name == tag_name).first()
-        if tag:
-            tags.append(tag)
-
-    logger.log("INFO", f"Tags: {tags}")
-    new_novel.tags = tags
-
+    # Add tags to the novel
+    new_novel.tags = novel_tags
+    
     db.add(new_novel)
     db.commit()
     db.refresh(new_novel)

@@ -1,6 +1,7 @@
 import httpx
 import requests
 
+
 from app.schemas.novel import NovelSearchResponse
 from app.core.logger import logger
 from app.core.config import (
@@ -60,7 +61,13 @@ def fetch_vndb_novel(novel_id: str):
     return data["results"][0]
 
 
-async def fetch_vndb_all_novel_tags(novel_id: str):
+async def fetch_vndb_novel_tags(novel_id: str):
+    """
+    Fetch tags for a novel from VNDB API.
+    
+    :param novel_id: VNDB ID of the novel
+    :return: List of dictionaries with tag information
+    """
     filtered_tags = []
     json_payload = {
         "filters": ["id", "=", novel_id],
@@ -70,16 +77,27 @@ async def fetch_vndb_all_novel_tags(novel_id: str):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(f"{VNDB_API_URL}/vn", json=json_payload)
+            
             if response.status_code == 200:
                 all_tags = response.json()["results"]
+
+                logger.log("INFO", f"All tags: {all_tags}")
                 for tags in all_tags:
-                    for tag in tags:
+                    # logger.log("DEBUG", f"{tags}")
+                    for tag in tags["tags"]:
                         if tag["category"] != "ero" and tag["rating"] > ATIR and tag["spoiler"] <= ATSV:
-                            filtered_tags.append(tag["name"])
+                            # logger.log("DEBUG", f"{tag}")
+                            filtered_tags.append({
+                                "name": tag["name"],
+                                "description": "description placeholder",
+                                "vndb_id": tag["id"],
+                            })
+                            logger.log("Info", f"Filtered tags: {filtered_tags}")
             else:
                 logger.log("WARNING", f"Api error, impossible fetch tags for novel {novel_id}")
                 return []
         except Exception as e:
             logger.log("WARNING", f"Unexpected error {e}, impossible fetch tags for novel {novel_id}")
+            return []
 
     return filtered_tags
