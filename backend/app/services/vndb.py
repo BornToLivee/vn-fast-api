@@ -135,7 +135,7 @@ def fetch_vndb_tags_description(tag_id: str):
 
     data = response.json()
 
-    if "results" not in data:
+    if "results" not in data or len(data["results"]) == 0:
         logger.log("WARNING", f"No results found for tag ID: {tag_id}")
         return None
 
