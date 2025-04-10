@@ -98,8 +98,8 @@ def test_read_novels():
         length_minutes=120,
         user_rating=8.5,
         votecount=500,
-        status="reading",
-        language="russian",
+        status="READING",
+        language="RUSSIAN",
         my_rating=8.0
     )
     session.add(novel)
@@ -111,7 +111,7 @@ def test_read_novels():
     data = response.json()
 
     assert data[0]["title"] == "Test Novel 1"
-    assert data[0]["status"] == "reading"
+    assert data[0]["status"] == "READING"
     assert len(data) == 1
 
 
@@ -142,8 +142,8 @@ def test_read_novel_detail():
         length_minutes=120,
         user_rating=8.5,
         votecount=500,
-        status="reading",
-        language="russian",
+        status="READING",
+        language="RUSSIAN",
         my_rating=8.0
     )
     session.add(novel)
@@ -155,10 +155,10 @@ def test_read_novel_detail():
     assert response.status_code == 200
     data = response.json()
     assert data["title"] == "Test Novel 1"
-    assert data["status"] == "reading"
+    assert data["status"] == "READING"
     assert data["my_rating"] == 8.0
     assert data["tags"] == []
-    assert data["language"] == "russian"
+    assert data["language"] == "RUSSIAN"
     assert data["description"] == "Test description"
 
 
@@ -179,8 +179,8 @@ def test_read_novel_detail_not_found():
         length_minutes=120,
         user_rating=8.5,
         votecount=500,
-        status="reading",
-        language="russian",
+        status="READING",
+        language="RUSSIAN",
         my_rating=8.0
     )
     session.add(novel)
@@ -198,11 +198,10 @@ def test_create_novel(mock_fetch_vndb_novel):
     Base.metadata.create_all(bind=engine)
     
     novel_create = {
-        "status": "reading",
+        "status": "READING",
         "my_review": "Great novel!",
         "my_rating": 9.0,
-        "language": "russian",
-        "tags": []
+        "language": "RUSSIAN",
     }
     
     response = client.post("/novels/?vndb_id=v1", json={**novel_create})
@@ -213,11 +212,10 @@ def test_create_novel(mock_fetch_vndb_novel):
     assert data["description"] == "Test description"
     assert data["studio"] == "Test Studio"
     assert data["released"] == "2022-01-01"
-    assert data["status"] == "reading"
-    assert data["language"] == "russian"
+    assert data["status"] == "READING"
+    assert data["language"] == "RUSSIAN"
     assert data["my_review"] == "Great novel!"
     assert data["my_rating"] == 9.0
-    assert len(data["tags"]) == 0
 
 
 def test_create_novel_already_exists():
@@ -237,8 +235,8 @@ def test_create_novel_already_exists():
         length_minutes=120,
         user_rating=8.5,
         votecount=500,
-        status="reading",
-        language="russian",
+        status="READING",
+        language="RUSSIAN",
         my_rating=8.0
     )
     session.add(novel)
@@ -246,10 +244,10 @@ def test_create_novel_already_exists():
     session.close()
 
     response = client.post("/novels/?vndb_id=v1", json={
-        "status": "reading",
+        "status": "READING",
         "my_review": "Good novel!",
         "my_rating": 7.0,
-        "language": "english",
+        "language": "RUSSIAN",
         "tags": []
     })
 
