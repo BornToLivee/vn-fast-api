@@ -43,6 +43,6 @@ class NovelsDetailResponse(BaseModel):
 class NovelCreate(BaseModel):
     status: str = "READING"
     my_review: Optional[str] = None
-    my_rating: Optional[int] = None
+    my_rating: Optional[float] = None
     language: str = "RUSSIAN"
     completed_date: Optional[date] = None

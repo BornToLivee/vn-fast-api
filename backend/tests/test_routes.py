@@ -100,7 +100,7 @@ def test_read_novels():
         votecount=500,
         status="reading",
         language="russian",
-        my_rating=8
+        my_rating=8.0
     )
     session.add(novel)
     session.commit()
@@ -144,7 +144,7 @@ def test_read_novel_detail():
         votecount=500,
         status="reading",
         language="russian",
-        my_rating=8
+        my_rating=8.0
     )
     session.add(novel)
     session.commit()
@@ -156,7 +156,7 @@ def test_read_novel_detail():
     data = response.json()
     assert data["title"] == "Test Novel 1"
     assert data["status"] == "reading"
-    assert data["my_rating"] == 8
+    assert data["my_rating"] == 8.0
     assert data["tags"] == []
     assert data["language"] == "russian"
     assert data["description"] == "Test description"
@@ -181,7 +181,7 @@ def test_read_novel_detail_not_found():
         votecount=500,
         status="reading",
         language="russian",
-        my_rating=8
+        my_rating=8.0
     )
     session.add(novel)
     session.commit()
@@ -200,7 +200,7 @@ def test_create_novel(mock_fetch_vndb_novel):
     novel_create = {
         "status": "reading",
         "my_review": "Great novel!",
-        "my_rating": 9,
+        "my_rating": 9.0,
         "language": "russian",
         "tags": []
     }
@@ -216,7 +216,7 @@ def test_create_novel(mock_fetch_vndb_novel):
     assert data["status"] == "reading"
     assert data["language"] == "russian"
     assert data["my_review"] == "Great novel!"
-    assert data["my_rating"] == 9
+    assert data["my_rating"] == 9.0
     assert len(data["tags"]) == 0
 
 
@@ -239,7 +239,7 @@ def test_create_novel_already_exists():
         votecount=500,
         status="reading",
         language="russian",
-        my_rating=8
+        my_rating=8.0
     )
     session.add(novel)
     session.commit()
@@ -248,7 +248,7 @@ def test_create_novel_already_exists():
     response = client.post("/novels/?vndb_id=v1", json={
         "status": "reading",
         "my_review": "Good novel!",
-        "my_rating": 7,
+        "my_rating": 7.0,
         "language": "english",
         "tags": []
     })
