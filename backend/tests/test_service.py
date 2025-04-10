@@ -63,7 +63,7 @@ async def test_fetch_vndb_novel_tags(mocker):
     
     mock_response = {
         "results": [
-            {
+            {   "id": "v1",
                 "tags": [
                     {
                         "id": "g32",
@@ -105,20 +105,14 @@ async def test_fetch_vndb_novel_tags(mocker):
         ]
     }
     
-    # Create a mock response object
-    mock_response_obj = AsyncMock()
-    mock_response_obj.status_code = 200
-    mock_response_obj.json = AsyncMock(return_value=mock_response)
-    
-    # Mock the post method to return our mock response
-    mock_post = mocker.patch("httpx.AsyncClient.post", new_callable=AsyncMock)
-    mock_post.return_value = mock_response_obj
-    
-    # Mock the fetch_vndb_tags_description function
+    mock_response_obj = mocker.patch("httpx.AsyncClient.post", new_callable=AsyncMock)
+    mock_response_obj.return_value.status_code = 200
+    mock_response_obj.return_value.json = lambda: mock_response 
+
     mock_fetch_description = mocker.patch("backend.app.services.vndb.fetch_vndb_tags_description")
     mock_fetch_description.return_value = "Test description"
-    
-    result = await fetch_vndb_novel_tags("1")
+
+    result = await fetch_vndb_novel_tags("v1")
     
     assert len(result) == 2
     assert result[0]["vndb_id"] == "g32"
@@ -129,15 +123,15 @@ async def test_fetch_vndb_novel_tags(mocker):
     assert result[1]["name"] == "Male Protagonist"
     assert result[1]["description"] == "Test description"
     
-    mock_post.assert_called_once()
+    mock_response_obj.assert_called_once()
     mock_fetch_description.assert_has_calls([
         mocker.call("g32"),
         mocker.call("g133")
     ])
     
-    call_args = mock_post.call_args[1]
+    call_args = mock_response_obj.call_args[1]
     assert "json" in call_args
-    assert call_args["json"]["filters"] == ["id", "=", "1"]
+    assert call_args["json"]["filters"] == ["id", "=", "v1"]
     assert call_args["json"]["fields"] == "tags.rating, tags.name, tags.category, tags.spoiler"
 
 
