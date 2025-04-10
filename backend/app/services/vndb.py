@@ -90,18 +90,16 @@ async def fetch_vndb_novel_tags(novel_id: str):
 
                 logger.log("INFO", f"All tags: {all_tags}")
                 for tags in all_tags:
-                    # logger.log("DEBUG", f"{tags}")
                     for tag in tags["tags"]:
                         if (
                             tag["category"] != "ero"
                             and tag["rating"] > ATIR
                             and tag["spoiler"] <= ATSV
                         ):
-                            # logger.log("DEBUG", f"{tag}")
                             filtered_tags.append(
                                 {
                                     "name": tag["name"],
-                                    "description": "description placeholder",
+                                    "description": fetch_vndb_tags_description(tag["id"]),
                                     "vndb_id": tag["id"],
                                 }
                             )
@@ -119,3 +117,27 @@ async def fetch_vndb_novel_tags(novel_id: str):
             return []
 
     return filtered_tags
+
+
+def fetch_vndb_tags_description(tag_id: str):
+    json_payload = {
+        "filters": ["id", "=", tag_id],
+        "fields": "description",
+    }
+
+    response = requests.post(f"{VNDB_API_URL}/tag", json=json_payload)
+
+    if response.status_code != 200:
+        logger.log(
+            "ERROR", f"Failed to fetch tag description: {response.status_code} - {response.text}"
+        )
+        return None
+
+    data = response.json()
+
+    if "results" not in data:
+        logger.log("WARNING", f"No results found for tag ID: {tag_id}")
+        return None
+
+    return data["results"][0]["description"]
+
