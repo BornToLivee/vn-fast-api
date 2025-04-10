@@ -27,7 +27,7 @@ router = APIRouter()
 def clear_database(db: Session = Depends(get_db)):
     """
     Clear all novels and their related data from the database.
-    This will delete all records from novels and novel_tag tables.
+    This will delete all records from novels, tags and novel_tag tables.
     """
     try:
         # First delete all records from the novel_tag table
