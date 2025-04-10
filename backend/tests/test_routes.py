@@ -1,42 +1,8 @@
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, StaticPool
-from sqlalchemy.orm import sessionmaker
 from unittest.mock import patch
 from datetime import datetime
 
-from app.main import app
-from app.database.settings import get_db
-from app.models.base import Base
 from app.models.novel import Novel
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-    pool_pre_ping=True
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-client = TestClient(app)
-
-@pytest.fixture(scope="function", autouse=True)
-def setup_database():
-    app.dependency_overrides[get_db] = override_get_db
-    Base.metadata.create_all(bind=engine)
-    yield
-    tear_down()
-
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-def tear_down():
-    Base.metadata.drop_all(bind=engine)
 
 
 def mock_fetch_vndb_novel(vndb_id: str):
@@ -71,7 +37,7 @@ def mock_search_vndb_novels_by_name(query: str):
 
 
 @patch("app.api.novels.search_vndb_novels_by_name", side_effect=mock_search_vndb_novels_by_name)
-def test_novel_search(mock_search):
+def test_novel_search(mock_search, client):
     response = client.get("/novels/search/?query=test")
     assert response.status_code == 200
     data = response.json()
@@ -81,11 +47,7 @@ def test_novel_search(mock_search):
     assert data[0]["image_url"] == "https://example.com/test.jpg"
 
 
-def test_read_novels():
-    tear_down()
-    Base.metadata.create_all(bind=engine)
-    session = TestingSessionLocal()
-
+def test_read_novels(client, db):
     novel = Novel(
         id=1,
         vndb_id="v1",
@@ -98,38 +60,28 @@ def test_read_novels():
         length_minutes=120,
         user_rating=8.5,
         votecount=500,
-        status="reading",
-        language="russian",
-        my_rating=8
+        status="READING",
+        language="RUSSIAN",
+        my_rating=8.0
     )
-    session.add(novel)
-    session.commit()
-    session.close()
+    db.add(novel)
+    db.commit()
 
     response = client.get("/novels/")
     assert response.status_code == 200
     data = response.json()
-
     assert data[0]["title"] == "Test Novel 1"
-    assert data[0]["status"] == "reading"
+    assert data[0]["status"] == "READING"
     assert len(data) == 1
 
 
-def test_read_novels_empty():
-    tear_down()
-    Base.metadata.create_all(bind=engine)
- 
+def test_read_novels_empty(client):
     response = client.get("/novels/")
     assert response.status_code == 200
     assert response.json() == "No novels found yet"
 
 
-
-def test_read_novel_detail():
-    tear_down()
-    Base.metadata.create_all(bind=engine)
-    session = TestingSessionLocal()
-
+def test_read_novel_detail(client, db):
     novel = Novel(
         id=10,
         vndb_id="v1",
@@ -142,31 +94,25 @@ def test_read_novel_detail():
         length_minutes=120,
         user_rating=8.5,
         votecount=500,
-        status="reading",
-        language="russian",
-        my_rating=8
+        status="READING",
+        language="RUSSIAN",
+        my_rating=8.0
     )
-    session.add(novel)
-    session.commit()
-    session.close()
+    db.add(novel)
+    db.commit()
 
     response = client.get("/novels/10")
-
     assert response.status_code == 200
     data = response.json()
     assert data["title"] == "Test Novel 1"
-    assert data["status"] == "reading"
-    assert data["my_rating"] == 8
+    assert data["status"] == "READING"
+    assert data["my_rating"] == 8.0
     assert data["tags"] == []
-    assert data["language"] == "russian"
+    assert data["language"] == "RUSSIAN"
     assert data["description"] == "Test description"
 
 
-def test_read_novel_detail_not_found():
-    tear_down()
-    Base.metadata.create_all(bind=engine)
-    session = TestingSessionLocal()
-
+def test_read_novel_detail_not_found(client, db):
     novel = Novel(
         id=10,
         vndb_id="v1",
@@ -179,52 +125,39 @@ def test_read_novel_detail_not_found():
         length_minutes=120,
         user_rating=8.5,
         votecount=500,
-        status="reading",
-        language="russian",
-        my_rating=8
+        status="READING",
+        language="RUSSIAN",
+        my_rating=8.0
     )
-    session.add(novel)
-    session.commit()
-    session.close()
-    
+    db.add(novel)
+    db.commit()
+
     response = client.get("/novels/111")
-    
     assert response.status_code == 404
 
 
 @patch("app.api.novels.fetch_vndb_novel", side_effect=mock_fetch_vndb_novel)
-def test_create_novel(mock_fetch_vndb_novel):
-    tear_down()
-    Base.metadata.create_all(bind=engine)
-    
+def test_create_novel(mock_fetch_vndb_novel, client):
     novel_create = {
-        "status": "reading",
+        "status": "READING",
         "my_review": "Great novel!",
-        "my_rating": 9,
-        "language": "russian",
-        "tags": []
+        "my_rating": 9.0,
+        "language": "RUSSIAN",
     }
-    
-    response = client.post("/novels/?vndb_id=v1", json={**novel_create})
-    
+
+    response = client.post("/novels/?vndb_id=v1", json=novel_create)
     assert response.status_code == 200
     data = response.json()
     assert data["title"] == "Test Novel"
     assert data["description"] == "Test description"
     assert data["studio"] == "Test Studio"
     assert data["released"] == "2022-01-01"
-    assert data["status"] == "reading"
-    assert data["language"] == "russian"
+    assert data["status"] == "READING"
+    assert data["language"] == "RUSSIAN"
     assert data["my_review"] == "Great novel!"
-    assert data["my_rating"] == 9
-    assert len(data["tags"]) == 0
+    assert data["my_rating"] == 9.0
 
-
-def test_create_novel_already_exists():
-    tear_down()
-    Base.metadata.create_all(bind=engine)
-    session = TestingSessionLocal()
-
+def test_create_novel_already_exists(client, db):
     novel = Novel(
         id=10,
         vndb_id="v1",
@@ -237,19 +170,18 @@ def test_create_novel_already_exists():
         length_minutes=120,
         user_rating=8.5,
         votecount=500,
-        status="reading",
-        language="russian",
-        my_rating=8
+        status="READING",
+        language="RUSSIAN",
+        my_rating=8.0
     )
-    session.add(novel)
-    session.commit()
-    session.close()
+    db.add(novel)
+    db.commit()
 
     response = client.post("/novels/?vndb_id=v1", json={
-        "status": "reading",
+        "status": "READING",
         "my_review": "Good novel!",
-        "my_rating": 7,
-        "language": "english",
+        "my_rating": 7.0,
+        "language": "RUSSIAN",
         "tags": []
     })
 

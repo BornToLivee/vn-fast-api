@@ -10,14 +10,13 @@ class NovelSearchResponse(BaseModel):
     title: str
     image_url: str
 
- 
+
 class NovelsListResponse(BaseModel):
     id: int
     title: str
     status: str
-    my_rating: int
+    my_rating: float
     image_url: str
-    tags: List[TagNovelResponse] = []
 
 
 class NovelsDetailResponse(BaseModel):
@@ -44,7 +43,6 @@ class NovelsDetailResponse(BaseModel):
 class NovelCreate(BaseModel):
     status: str = "READING"
     my_review: Optional[str] = None
-    my_rating: Optional[int] = None
+    my_rating: Optional[float] = None
     language: str = "RUSSIAN"
     completed_date: Optional[date] = None
-    tags: List[str] = []

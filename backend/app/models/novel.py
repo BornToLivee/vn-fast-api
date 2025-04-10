@@ -23,9 +23,11 @@ class NovelLanguage(str, PyEnum):
 class Novel(Base):
     __tablename__ = "novels"
     __table_args__ = (
-        CheckConstraint('my_rating >= 0 AND my_rating <= 10', name='check_rating_range'),
-        {'extend_existing': True}
-        )
+        CheckConstraint(
+            "my_rating >= 0 AND my_rating <= 10", name="check_rating_range"
+        ),
+        {"extend_existing": True},
+    )
 
     # My columns
     id = Column(Integer, primary_key=True)
@@ -42,7 +44,7 @@ class Novel(Base):
     image_url = Column(String)
     studio = Column(String)
     released = Column(Date)
-    length = Column(Integer) # from 1 to 5
+    length = Column(Integer)  # from 1 to 5
     length_minutes = Column(Integer, nullable=True)
     votecount = Column(Integer)
     user_rating = Column(Integer, default=0)
