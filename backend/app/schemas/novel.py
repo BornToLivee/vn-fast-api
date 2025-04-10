@@ -15,9 +15,8 @@ class NovelsListResponse(BaseModel):
     id: int
     title: str
     status: str
-    my_rating: int
+    my_rating: float
     image_url: str
-    tags: List[TagNovelResponse] = []
 
 
 class NovelsDetailResponse(BaseModel):
@@ -47,4 +46,3 @@ class NovelCreate(BaseModel):
     my_rating: Optional[int] = None
     language: str = "RUSSIAN"
     completed_date: Optional[date] = None
-    tags: List[str] = []

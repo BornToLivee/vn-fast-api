@@ -3,6 +3,7 @@ from datetime import datetime
 
 from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.models.novel import Novel
 from app.models.tag import Tag
@@ -18,6 +19,28 @@ from app.database.settings import get_db
 
 router = APIRouter()
 
+
+@router.delete("/novels/delete")
+def clear_database(db: Session = Depends(get_db)):
+    """
+    Clear all novels and their related data from the database.
+    This will delete all records from novels and novel_tag tables.
+    """
+    try:
+        # First delete all records from the novel_tag table
+        db.execute(text("DELETE FROM novel_tag"))
+        # Then delete all records from the novels and tag table
+        db.execute(text("DELETE FROM novels"))
+        db.execute(text("DELETE FROM tags"))
+        db.commit()
+        logger.log("INFO", "All novels and related data have been cleared")
+        return {"message": "All novels and related data have been cleared"}
+    except Exception as e:
+        db.rollback()
+        logger.log_exception("Error clearing database", e)
+        raise HTTPException(status_code=500, detail="Error clearing database")
+
+
 @router.get("/novels/search", response_model=List[NovelSearchResponse])
 async def novel_search(query: str):
     logger.log("INFO", f"Search query: {query}")
@@ -26,7 +49,7 @@ async def novel_search(query: str):
 
 
 @router.get("/novels/", response_model=List[NovelsListResponse] | str)
-def read_novels(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+def read_novels(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
     novels = db.query(Novel).offset(skip).limit(limit).all()
 
     if not novels:
