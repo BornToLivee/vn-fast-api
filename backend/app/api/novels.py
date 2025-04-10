@@ -1,21 +1,24 @@
-from typing import List
 from datetime import datetime
+from typing import List
 
-from fastapi import Depends, APIRouter, HTTPException
-from sqlalchemy.orm import Session
-from sqlalchemy import text
-
-from app.models.novel import Novel
-from app.models.tag import Tag
-from app.schemas.novel import NovelCreate, NovelSearchResponse, NovelsListResponse, NovelsDetailResponse
-from app.services.vndb import (
-    search_vndb_novels_by_name, 
-    fetch_vndb_novel, 
-    fetch_vndb_novel_tags,
-)
-from app.services.tag import create_or_get_tags
 from app.core.logger import logger
 from app.database.settings import get_db
+from app.models.novel import Novel
+from app.schemas.novel import (
+    NovelCreate,
+    NovelsDetailResponse,
+    NovelSearchResponse,
+    NovelsListResponse,
+)
+from app.services.tag import create_or_get_tags
+from app.services.vndb import (
+    fetch_vndb_novel,
+    fetch_vndb_novel_tags,
+    search_vndb_novels_by_name,
+)
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -66,12 +69,14 @@ def read_novel(novel_id: int, db: Session = Depends(get_db)):
     if not novel:
         logger.log("ERROR", f"Novel with id {novel_id} not found")
         raise HTTPException(status_code=404, detail="Novel not found")
-    
+
     return novel
 
 
 @router.post("/novels/", response_model=NovelsDetailResponse)
-async def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depends(get_db)):
+async def create_novel(
+    vndb_id: str, novel_data: NovelCreate, db: Session = Depends(get_db)
+):
     """
     Create a new novel entry in the database using the provided VNDB ID and novel data.
 
@@ -81,10 +86,10 @@ async def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depe
     it to the database. If the VNDB details cannot be fetched, an HTTP 404 error is raised.
 
     :param vndb_id: The VNDB ID of the novel to be created.
-    :param novel_data: The data required to create the novel, including status, review, 
+    :param novel_data: The data required to create the novel, including status, review,
                        rating, language, and tags.
     :param db: The database session dependency for performing database operations.
-    
+
     :return: The newly created novel with its details.
     """
 
@@ -97,13 +102,11 @@ async def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depe
     if not novel_info:
         logger.log("ERROR", f"Novel details not found for vndb_id {vndb_id}")
         raise HTTPException(status_code=404, detail="Novel details not found")
-    
-    # Get tags from VNDB
+
     tag_data = await fetch_vndb_novel_tags(vndb_id)
     if not tag_data:
         logger.log("WARNING", f"Novel tags not found for vndb_id {vndb_id}")
-    
-    # Create or get tags from database
+
     novel_tags = create_or_get_tags(tag_data, db)
 
     new_novel = Novel(
@@ -111,22 +114,29 @@ async def create_novel(vndb_id: str, novel_data: NovelCreate, db: Session = Depe
         title=novel_info["title"],
         description=novel_info.get("description"),
         image_url=novel_info["image"]["url"] if "image" in novel_info else None,
-        studio=novel_info["developers"][0]["name"] if novel_info.get("developers") else None,
-        released=datetime.strptime(novel_info["released"], "%Y-%m-%d").date() if novel_info.get("released") else None,
+        studio=(
+            novel_info["developers"][0]["name"]
+            if novel_info.get("developers")
+            else None
+        ),
+        released=(
+            datetime.strptime(novel_info["released"], "%Y-%m-%d").date()
+            if novel_info.get("released")
+            else None
+        ),
         length=novel_info.get("length"),
         length_minutes=novel_info.get("length_minutes"),
         user_rating=novel_info.get("rating"),
         votecount=novel_info.get("votecount"),
-
         status=novel_data.status,
         my_review=novel_data.my_review,
         my_rating=novel_data.my_rating,
-        language=novel_data.language
+        language=novel_data.language,
     )
 
     # Add tags to the novel
     new_novel.tags = novel_tags
-    
+
     db.add(new_novel)
     db.commit()
     db.refresh(new_novel)

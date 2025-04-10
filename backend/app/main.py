@@ -13,8 +13,10 @@ app = FastAPI()
 
 add_cors(app)
 
+
 @app.get("/test-db")
 def test_db(db: Session = Depends(get_db)):
     return {"message": "Database connected!"}
+
 
 app.include_router(novels_router)

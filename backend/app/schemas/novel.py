@@ -10,7 +10,7 @@ class NovelSearchResponse(BaseModel):
     title: str
     image_url: str
 
- 
+
 class NovelsListResponse(BaseModel):
     id: int
     title: str

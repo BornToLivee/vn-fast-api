@@ -8,8 +8,11 @@ from datetime import datetime
 
 load_dotenv()
 
+
 class CloudWatchLogger:
-    def __init__(self, log_group: str, stream_name: str, region_name: str = "eu-north-1"):
+    def __init__(
+        self, log_group: str, stream_name: str, region_name: str = "eu-north-1"
+    ):
         """
         Initialization of the logger for CloudWatch.
 
@@ -23,18 +26,15 @@ class CloudWatchLogger:
         self.logger = logging.getLogger("cloudwatch_logger")
 
         self.session = boto3.Session(
-            aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY"),
-            region_name=self.region_name
+            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+            region_name=self.region_name,
         )
 
         self.cloudwatch_handler = watchtower.CloudWatchLogHandler(
             log_group=self.log_group,
             stream_name=self.stream_name,
-            boto3_client=self.session.client(
-                "logs",
-                region_name=self.region_name
-                )
+            boto3_client=self.session.client("logs", region_name=self.region_name),
         )
 
         self.logger.setLevel(logging.DEBUG)
@@ -60,13 +60,17 @@ class CloudWatchLogger:
     def log_exception(self, message: str, exception: Exception):
         """
         Logging exceptions with full stack trace information.
-        
+
         :param message: Custom message to log
         :param exception: The exception object
         """
-        stack_trace = ''.join(traceback.format_exception(type(exception), exception, exception.__traceback__))
+        stack_trace = "".join(
+            traceback.format_exception(
+                type(exception), exception, exception.__traceback__
+            )
+        )
         self.logger.error(f"{message}\nStack trace:\n{stack_trace}")
-    
+
 
 logger = CloudWatchLogger(
     log_group="vn-fast-api-logs",
