@@ -140,4 +140,3 @@ def fetch_vndb_tags_description(tag_id: str):
         return None
 
     return data["results"][0]["description"]
-

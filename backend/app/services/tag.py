@@ -13,10 +13,10 @@ def create_or_get_tags(tag_data: list, db: Session) -> list[Tag]:
     :return: List of Tag objects
     """
     tag_names = [tag["name"] for tag in tag_data]
-    
+
     existing_tags = db.query(Tag).filter(Tag.name.in_(tag_names)).all()
     existing_tag_names = {tag.name: tag for tag in existing_tags}
-    
+
     new_tags = []
     for tag_info in tag_data:
         if tag_info["name"] not in existing_tag_names:
@@ -32,8 +32,8 @@ def create_or_get_tags(tag_data: list, db: Session) -> list[Tag]:
         db.commit()
         for tag in new_tags:
             db.refresh(tag)
-    
+
     all_tags = list(existing_tags) + new_tags
-    
+
     logger.log("INFO", f"Total tags processed: {len(all_tags)}")
     return all_tags
