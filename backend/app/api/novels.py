@@ -10,12 +10,14 @@ from app.schemas.novel import (
     NovelSearchResponse,
     NovelsListResponse,
 )
-from app.services.tag import create_or_get_tags
 from app.services.vndb import (
     fetch_vndb_novel,
     fetch_vndb_novel_tags,
     search_vndb_novels_by_name,
 )
+from app.dependencies.services import tag_service_dependency
+from app.dependencies.database import db_dependency
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -24,7 +26,7 @@ router = APIRouter()
 
 
 @router.delete("/novels/delete")
-def clear_database(db: Session = Depends(get_db)):
+def clear_database(db: db_dependency):
     """
     Clear all novels and their related data from the database.
     This will delete all records from novels, tags and novel_tag tables.
@@ -52,8 +54,8 @@ async def novel_search(query: str):
 
 
 @router.get("/novels/", response_model=List[NovelsListResponse] | str)
-def read_novels(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
-    novels = db.query(Novel).offset(skip).limit(limit).all()
+def read_novels(db: db_dependency):
+    novels = db.query(Novel).all()
 
     if not novels:
         logger.log("WARNING", "No novels found")
@@ -64,7 +66,7 @@ def read_novels(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db))
 
 
 @router.get("/novels/{novel_id}", response_model=NovelsDetailResponse)
-def read_novel(novel_id: int, db: Session = Depends(get_db)):
+def read_novel(novel_id: int, db: db_dependency):
     novel = db.query(Novel).filter(Novel.id == novel_id).first()
     if not novel:
         logger.log("ERROR", f"Novel with id {novel_id} not found")
@@ -75,7 +77,7 @@ def read_novel(novel_id: int, db: Session = Depends(get_db)):
 
 @router.post("/novels/", response_model=NovelsDetailResponse)
 async def create_novel(
-    vndb_id: str, novel_data: NovelCreate, db: Session = Depends(get_db)
+    vndb_id: str, novel_data: NovelCreate, tag_service: tag_service_dependency, db: db_dependency
 ):
     """
     Create a new novel entry in the database using the provided VNDB ID and novel data.
@@ -107,7 +109,7 @@ async def create_novel(
     if not tag_data:
         logger.log("WARNING", f"Novel tags not found for vndb_id {vndb_id}")
 
-    novel_tags = create_or_get_tags(tag_data, db)
+    novel_tags = tag_service.create_or_get_tags(tag_data)
 
     new_novel = Novel(
         vndb_id=novel_info["id"],
