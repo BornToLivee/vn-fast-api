@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import List
 
 from app.core.logger import logger
-from app.database.settings import get_db
 from app.models.novel import Novel
 from app.schemas.novel import (
     NovelCreate,
@@ -18,9 +17,8 @@ from app.services.vndb import (
 from app.dependencies.services import tag_service_dependency
 from app.dependencies.database import db_dependency
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 
