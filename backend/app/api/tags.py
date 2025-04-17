@@ -1,17 +1,17 @@
 from typing import List
 
 from app.core.logger import logger
-from app.database.settings import get_db
 from app.models.tag import Tag
 from app.schemas.tag import TagList
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from app.dependencies.database import db_dependency
+from fastapi import APIRouter
+
 
 router = APIRouter()
 
 
 @router.get("/tags/", response_model=List[TagList] | str)
-def tags_list(db: Session = Depends(get_db)):
+def tags_list(db: db_dependency):
     tags = db.query(Tag).all()
     if tags:
         logger.log("INFO", f"Found {len(tags)} tags")
