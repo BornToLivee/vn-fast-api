@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 class NovelService:
-    def __init__(self, db: Session, repo = None, vndb_service = None, tag_service = None):
+    def __init__(self, db: Session, repo, vndb_service = None, tag_service = None):
         self.db = db
         self.repo = repo
         self.vndb_service = vndb_service
@@ -16,25 +16,28 @@ class NovelService:
 
     def get_novels_list(self):
         try:
-            novels = self.db.query(Novel).all()
+            novels = self.repo.get_novels_list()
         except Exception as e:
             logger.log_exception("Error getting novels list", e)
 
         if not novels:
             logger.log("WARNING", "No novels found")
             return "No novels found"
+        
+        return novels
 
 
     def get_novel_by_id(self, novel_id: int):
-        novel = self.db.query(Novel).filter(Novel.id == novel_id).first()
+        novel = self.repo.get_novel_by_id(novel_id)
         if not novel:
-            logger.log_exception(f"Novel with id {novel_id} not found, {e}")
+            logger.log_exception(f"Novel with id {novel_id} not found")
             raise HTTPException(status_code=404, detail="Novel not found")
+        
+        return novel
         
 
     async def create_novel(self, novel_data: NovelCreate, vndb_id: str):
-
-        existing_novel = self.db.query(Novel).filter(Novel.vndb_id == vndb_id).first()
+        existing_novel = self.repo.get_novel_by_vndb_id(vndb_id)
         if existing_novel:
             logger.log("INFO", f"Novel with vndb_id {vndb_id} already exists")
             raise HTTPException(status_code=400, detail="Novel already exists")
@@ -78,8 +81,6 @@ class NovelService:
         # Add tags to the novel
         new_novel.tags = novel_tags
 
-        self.db.add(new_novel)
-        self.db.commit()
-        self.db.refresh(new_novel)
-
+        self.repo.add(new_novel)
+        
         return new_novel

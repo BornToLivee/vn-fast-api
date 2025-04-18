@@ -5,9 +5,19 @@ from app.core.logger import logger
 
 
 class TagService:
-    def __init__(self, db: Session, repo = None):
+    def __init__(self, db: Session, repo):
         self.db = db
         self.repo = repo
+
+    def get_tags_list(self):
+        tags = self.repo.get_tags_list()
+
+        if tags:
+            logger.log("INFO", f"Found {len(tags)} tags")
+            return tags
+        else:
+            logger.log("WARNING", "No tags found")
+            return "No tags found"
 
     def create_or_get_tags(self, tag_data: list):
         """
@@ -19,7 +29,7 @@ class TagService:
         """
         tag_names = [tag["name"] for tag in tag_data]
 
-        existing_tags = self.db.query(Tag).filter(Tag.name.in_(tag_names)).all()
+        existing_tags = self.repo.get_existing_tags(tag_names)
         existing_tag_names = {tag.name: tag for tag in existing_tags}
 
         new_tags = []
@@ -30,13 +40,13 @@ class TagService:
                     description=tag_info["description"],
                     vndb_id=tag_info["vndb_id"],
                 )
-                self.db.add(new_tag)
+                self.repo.add(new_tag)
                 new_tags.append(new_tag)
 
         if new_tags:
-            self.db.commit()
+            self.repo.commit()
             for tag in new_tags:
-                self.db.refresh(tag)
+                self.repo.refresh(tag)
 
         all_tags = list(existing_tags) + new_tags
 

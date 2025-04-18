@@ -18,7 +18,6 @@ from sqlalchemy import text
 
 router = APIRouter()
 
-
 @router.delete("/novels/delete")
 def clear_database(db: db_dependency):
     """
@@ -50,7 +49,7 @@ async def novel_search(query: str, vndb_service: vndb_service_dependency):
 @router.get("/novels/", response_model=List[NovelsListResponse] | str)
 def read_novels(novel_service: novel_service_dependency):
     novels = novel_service.get_novels_list()
-    logger.log("INFO", f"Found {len(novels)} novels")
+    logger.log("INFO", f"Found {len(novels)} novels" if novels else "No novels found")
     return novels
 
 
