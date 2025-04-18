@@ -15,7 +15,7 @@ class NovelRepository(BaseRepository):
     def get_novels_list(self):
         return self.db.query(Novel).all()
     
-    def get_novel_by__id(self, novel_id: int):
+    def get_novel_by_id(self, novel_id: int):
         return self.db.query(Novel).filter(Novel.id == novel_id).first()
     
     def get_novel_by_vndb_id(self, vndb_id: str):

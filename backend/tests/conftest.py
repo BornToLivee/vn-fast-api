@@ -9,6 +9,13 @@ from app.main import app
 from app.database.settings import get_db
 from app.models.base import Base
 
+from app.repositories.novels import NovelRepository
+from app.repositories.tags import TagRepository
+from app.services.novel import NovelService
+from app.services.tag import TagService
+from app.services.vndb import VNDBService
+
+
 # Disable logging during tests
 logging.disable(logging.CRITICAL)
 
@@ -54,8 +61,15 @@ def client(db):
             yield db
         finally:
             pass
-    
+
+    # Override dependencies for services and repositories
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[NovelRepository] = lambda: NovelRepository(db=db)
+    app.dependency_overrides[TagRepository] = lambda: TagRepository(db=db)
+    app.dependency_overrides[VNDBService] = lambda: VNDBService(db=db)
+    app.dependency_overrides[TagService] = lambda: TagService(db=db, repo=TagRepository(db=db))
+    app.dependency_overrides[NovelService] = lambda: NovelService(db=db, repo=NovelRepository(db=db), vndb_service=VNDBService(db=db), tag_service=TagService(db=db, repo=TagRepository(db=db)))
+
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()

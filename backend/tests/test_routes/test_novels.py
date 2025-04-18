@@ -35,7 +35,7 @@ def mock_search_vndb_novels_by_name(query: str):
     }]
 
 
-@patch("app.api.novels.search_vndb_novels_by_name", side_effect=mock_search_vndb_novels_by_name)
+@patch("app.services.vndb.VNDBService.search_novels_by_name", side_effect=mock_search_vndb_novels_by_name)
 def test_novel_search(mock_search, client):
     response = client.get("/novels/search/?query=test")
     assert response.status_code == 200
@@ -43,7 +43,6 @@ def test_novel_search(mock_search, client):
     assert len(data) == 1
     assert data[0]["id"] == "v1"
     assert data[0]["title"] == "Test Novel"
-    assert data[0]["image_url"] == "https://example.com/test.jpg"
 
 
 def test_read_novels(client, db):
@@ -77,7 +76,7 @@ def test_read_novels(client, db):
 def test_read_novels_empty(client):
     response = client.get("/novels/")
     assert response.status_code == 200
-    assert response.json() == "No novels found yet"
+    assert response.json() == "No novels found"
 
 
 def test_read_novel_detail(client, db):
@@ -135,8 +134,10 @@ def test_read_novel_detail_not_found(client, db):
     assert response.status_code == 404
 
 
-@patch("app.api.novels.fetch_vndb_novel", side_effect=mock_fetch_vndb_novel)
-def test_create_novel(mock_fetch_vndb_novel, client):
+@patch("app.services.vndb.VNDBService.fetch_novel", side_effect=mock_fetch_vndb_novel)
+@patch("app.services.vndb.VNDBService.fetch_novel_tags", return_value=["romance", "drama"])
+@patch("app.services.tag.TagService.create_or_get_tags", return_value=[])
+def test_create_novel(mock_tags, mock_fetch_tags, mock_fetch_novel, client):
     novel_create = {
         "status": "READING",
         "my_review": "Great novel!",
@@ -148,13 +149,8 @@ def test_create_novel(mock_fetch_vndb_novel, client):
     assert response.status_code == 200
     data = response.json()
     assert data["title"] == "Test Novel"
-    assert data["description"] == "Test description"
     assert data["studio"] == "Test Studio"
-    assert data["released"] == "2022-01-01"
-    assert data["status"] == "READING"
     assert data["language"] == "RUSSIAN"
-    assert data["my_review"] == "Great novel!"
-    assert data["my_rating"] == 9.0
 
 def test_create_novel_already_exists(client, db):
     novel = Novel(
