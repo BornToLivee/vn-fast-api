@@ -1,9 +1,9 @@
 from enum import Enum as PyEnum
-from sqlalchemy import Column, Integer, String, Text, Date, Float, Enum, CheckConstraint
-from sqlalchemy.orm import relationship
 
-from app.models.base import Base
 from app.models.associations import novel_tag
+from app.models.base import Base
+from sqlalchemy import CheckConstraint, Column, Date, Enum, Float, Integer, String, Text
+from sqlalchemy.orm import relationship
 
 
 class NovelStatus(str, PyEnum):

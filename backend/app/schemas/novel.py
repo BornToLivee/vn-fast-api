@@ -1,8 +1,8 @@
-from pydantic import BaseModel
-from typing import List, Optional
 from datetime import date
+from typing import List, Optional
 
 from app.schemas.tag import TagNovelResponse
+from pydantic import BaseModel
 
 
 class NovelSearchResponse(BaseModel):
