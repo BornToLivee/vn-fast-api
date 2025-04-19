@@ -1,8 +1,9 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
-from fastapi import HTTPException
-from app.services.novel import NovelService
+
+import pytest
 from app.schemas.novel import NovelCreate
+from app.services.novel import NovelService
+from fastapi import HTTPException
 
 
 class TestGetNovelsList:

@@ -1,17 +1,14 @@
 from typing import List
 
-
 from app.core.logger import logger
+from app.dependencies.database import db_dependency
+from app.dependencies.services import novel_service_dependency, vndb_service_dependency
 from app.schemas.novel import (
     NovelCreate,
     NovelsDetailResponse,
     NovelSearchResponse,
     NovelsListResponse,
 )
-
-from app.dependencies.services import vndb_service_dependency, novel_service_dependency
-from app.dependencies.database import db_dependency
-
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import text
 

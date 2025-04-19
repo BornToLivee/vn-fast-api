@@ -1,10 +1,11 @@
 import logging
-import watchtower
-import boto3
 import os
 import traceback
-from dotenv import load_dotenv
 from datetime import datetime
+
+import boto3
+import watchtower
+from dotenv import load_dotenv
 
 load_dotenv()
 

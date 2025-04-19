@@ -1,11 +1,7 @@
 import httpx
 import requests
-from app.core.config import (
-    ACCEPTABLE_TAGS_IMPORTANCE_RATING as ATIR,
-)
-from app.core.config import (
-    ACCEPTABLE_TAGS_SPOILER_VALUE as ATSV,
-)
+from app.core.config import ACCEPTABLE_TAGS_IMPORTANCE_RATING as ATIR
+from app.core.config import ACCEPTABLE_TAGS_SPOILER_VALUE as ATSV
 from app.core.config import (
     VNDB_API_URL,
 )

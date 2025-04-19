@@ -1,15 +1,13 @@
 from typing import Annotated
 
-from fastapi import Depends
-from sqlalchemy.orm import Session
-
 from app.database.settings import get_db
-
-from app.services.tag import TagService
-from app.services.vndb import VNDBService
-from app.services.novel import NovelService
 from app.repositories.novels import NovelRepository
 from app.repositories.tags import TagRepository
+from app.services.novel import NovelService
+from app.services.tag import TagService
+from app.services.vndb import VNDBService
+from fastapi import Depends
+from sqlalchemy.orm import Session
 
 
 def get_tag_repo(db: Session = Depends(get_db)):

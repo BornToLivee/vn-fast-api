@@ -1,9 +1,10 @@
-from sqlalchemy.orm import Session
-from app.models.novel import Novel
-from app.core.logger import logger
-from fastapi import HTTPException
-from app.schemas.novel import NovelCreate
 from datetime import datetime
+
+from app.core.logger import logger
+from app.models.novel import Novel
+from app.schemas.novel import NovelCreate
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 
 class NovelService:

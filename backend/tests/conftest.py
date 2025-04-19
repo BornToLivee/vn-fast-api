@@ -1,20 +1,18 @@
 # conftest.py
 import logging
+
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, StaticPool
-from sqlalchemy.orm import sessionmaker
-
-from app.main import app
 from app.database.settings import get_db
+from app.main import app
 from app.models.base import Base
-
 from app.repositories.novels import NovelRepository
 from app.repositories.tags import TagRepository
 from app.services.novel import NovelService
 from app.services.tag import TagService
 from app.services.vndb import VNDBService
-
+from fastapi.testclient import TestClient
+from sqlalchemy import StaticPool, create_engine
+from sqlalchemy.orm import sessionmaker
 
 # Disable logging during tests
 logging.disable(logging.CRITICAL)

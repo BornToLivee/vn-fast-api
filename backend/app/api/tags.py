@@ -1,10 +1,9 @@
 from typing import List
 
-from app.schemas.tag import TagList
 from app.dependencies.database import db_dependency
 from app.dependencies.services import tag_service_dependency
+from app.schemas.tag import TagList
 from fastapi import APIRouter
-
 
 router = APIRouter()
 

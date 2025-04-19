@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
-from app.services.tag import TagService
+
 from app.models.tag import Tag
+from app.services.tag import TagService
 
 
 class TestTagService:

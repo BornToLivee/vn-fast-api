@@ -1,7 +1,6 @@
-from sqlalchemy.orm import Session
-
-from app.models.tag import Tag
 from app.core.logger import logger
+from app.models.tag import Tag
+from sqlalchemy.orm import Session
 
 
 class TagService:
