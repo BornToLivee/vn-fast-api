@@ -8,6 +8,6 @@ class TagRepository(BaseRepository):
 
     def get_tags_list(self):
         return self.db.query(Tag).all()
-    
+
     def get_existing_tags(self, tag_names: list):
         return self.db.query(Tag).filter(Tag.name.in_(tag_names)).all()

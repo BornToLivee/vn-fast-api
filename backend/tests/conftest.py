@@ -26,10 +26,11 @@ engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
-    pool_pre_ping=True
+    pool_pre_ping=True,
 )
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def override_get_db():
     try:
@@ -37,6 +38,7 @@ def override_get_db():
         yield db
     finally:
         db.close()
+
 
 @pytest.fixture(scope="function")
 def db():
@@ -51,11 +53,13 @@ def db():
         session.close()
         Base.metadata.drop_all(bind=engine)
 
+
 @pytest.fixture(scope="function")
 def client(db):
     """
     Create a test client with a fresh database session.
     """
+
     def override_get_db():
         try:
             yield db
@@ -67,8 +71,15 @@ def client(db):
     app.dependency_overrides[NovelRepository] = lambda: NovelRepository(db=db)
     app.dependency_overrides[TagRepository] = lambda: TagRepository(db=db)
     app.dependency_overrides[VNDBService] = lambda: VNDBService(db=db)
-    app.dependency_overrides[TagService] = lambda: TagService(db=db, repo=TagRepository(db=db))
-    app.dependency_overrides[NovelService] = lambda: NovelService(db=db, repo=NovelRepository(db=db), vndb_service=VNDBService(db=db), tag_service=TagService(db=db, repo=TagRepository(db=db)))
+    app.dependency_overrides[TagService] = lambda: TagService(
+        db=db, repo=TagRepository(db=db)
+    )
+    app.dependency_overrides[NovelService] = lambda: NovelService(
+        db=db,
+        repo=NovelRepository(db=db),
+        vndb_service=VNDBService(db=db),
+        tag_service=TagService(db=db, repo=TagRepository(db=db)),
+    )
 
     with TestClient(app) as test_client:
         yield test_client

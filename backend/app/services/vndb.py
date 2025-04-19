@@ -1,14 +1,17 @@
 import httpx
 import requests
-
-from sqlalchemy.orm import Session
-from app.schemas.novel import NovelSearchResponse
-from app.core.logger import logger
 from app.core.config import (
     ACCEPTABLE_TAGS_IMPORTANCE_RATING as ATIR,
+)
+from app.core.config import (
     ACCEPTABLE_TAGS_SPOILER_VALUE as ATSV,
+)
+from app.core.config import (
     VNDB_API_URL,
 )
+from app.core.logger import logger
+from app.schemas.novel import NovelSearchResponse
+from sqlalchemy.orm import Session
 
 
 class VNDBService:
@@ -16,7 +19,10 @@ class VNDBService:
         self.db = db
 
     async def search_novels_by_name(self, query: str):
-        json_payload = {"filters": ["search", "=", query], "fields": "id, title, image.url"}
+        json_payload = {
+            "filters": ["search", "=", query],
+            "fields": "id, title, image.url",
+        }
 
         async with httpx.AsyncClient() as client:
             response = await client.post(f"{VNDB_API_URL}/vn", json=json_payload)
@@ -33,7 +39,10 @@ class VNDBService:
                 logger.log("INFO", f"Found {len(result)} novels for query: {query}")
                 return result
 
-            logger.log("ERROR", f"Error searching for novels: {response.status_code} - {response.text}")
+            logger.log(
+                "ERROR",
+                f"Error searching for novels: {response.status_code} - {response.text}",
+            )
             return []
 
     def fetch_novel(self, novel_id: str):
@@ -46,7 +55,10 @@ class VNDBService:
         response = requests.post(f"{VNDB_API_URL}/vn", json=json_payload)
 
         if response.status_code != 200:
-            logger.log("ERROR", f"Failed to fetch novel: {response.status_code} - {response.text}")
+            logger.log(
+                "ERROR",
+                f"Failed to fetch novel: {response.status_code} - {response.text}",
+            )
             return None
 
         data = response.json()
@@ -55,7 +67,10 @@ class VNDBService:
             logger.log("WARNING", f"No results found for novel ID: {novel_id}")
             return None
 
-        logger.log("INFO", f"Successfully fetched novel: {data['results'][0]['title']} with ID: {novel_id}")
+        logger.log(
+            "INFO",
+            f"Successfully fetched novel: {data['results'][0]['title']} with ID: {novel_id}",
+        )
         return data["results"][0]
 
     async def fetch_novel_tags(self, novel_id: str):
@@ -82,16 +97,24 @@ class VNDBService:
                                 filtered_tags.append(
                                     {
                                         "name": tag["name"],
-                                        "description": self.fetch_tag_description(tag["id"]),
+                                        "description": self.fetch_tag_description(
+                                            tag["id"]
+                                        ),
                                         "vndb_id": tag["id"],
                                     }
                                 )
                     logger.log("INFO", f"Filtered tags: {filtered_tags}")
                 else:
-                    logger.log("WARNING", f"API error, couldn't fetch tags for novel {novel_id}")
+                    logger.log(
+                        "WARNING",
+                        f"API error, couldn't fetch tags for novel {novel_id}",
+                    )
                     return []
             except Exception as e:
-                logger.log("WARNING", f"Unexpected error {e}, couldn't fetch tags for novel {novel_id}")
+                logger.log(
+                    "WARNING",
+                    f"Unexpected error {e}, couldn't fetch tags for novel {novel_id}",
+                )
                 return []
 
         return filtered_tags
@@ -105,7 +128,10 @@ class VNDBService:
         response = requests.post(f"{VNDB_API_URL}/tag", json=json_payload)
 
         if response.status_code != 200:
-            logger.log("ERROR", f"Failed to fetch tag description: {response.status_code} - {response.text}")
+            logger.log(
+                "ERROR",
+                f"Failed to fetch tag description: {response.status_code} - {response.text}",
+            )
             return None
 
         data = response.json()

@@ -1,16 +1,9 @@
 from app.models.tag import Tag
 
+
 def test_read_tags(client, db):
-    tag1 = Tag(
-        name="Test Tag 1",
-        description="This is a test tag 1",
-        vndb_id="g1"
-    )
-    tag2 = Tag(
-        name="Test Tag 2",
-        description="This is a test tag 2",
-        vndb_id="g2"
-    )
+    tag1 = Tag(name="Test Tag 1", description="This is a test tag 1", vndb_id="g1")
+    tag2 = Tag(name="Test Tag 2", description="This is a test tag 2", vndb_id="g2")
 
     db.add_all([tag1, tag2])
     db.commit()

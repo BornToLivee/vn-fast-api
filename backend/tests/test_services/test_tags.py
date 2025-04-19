@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import MagicMock
 from app.services.tag import TagService
 from app.models.tag import Tag
@@ -39,7 +38,11 @@ class TestTagService:
     def test_create_or_get_tags(self):
         tag_data = [
             {"name": "New Tag", "description": "New Tag Desc", "vndb_id": "v123"},
-            {"name": "Existing Tag", "description": "Existing Tag Desc", "vndb_id": "v456"},
+            {
+                "name": "Existing Tag",
+                "description": "Existing Tag Desc",
+                "vndb_id": "v456",
+            },
         ]
 
         mock_repo = MagicMock()
@@ -58,13 +61,19 @@ class TestTagService:
         assert len(tags) == 2
         assert tags[0].name == "Existing Tag"
         assert tags[1].name == "New Tag"
-        mock_repo.add.assert_called_once_with(tags[1])  # Проверка, что новая метка была добавлена
+        mock_repo.add.assert_called_once_with(
+            tags[1]
+        )  # Проверка, что новая метка была добавлена
         mock_repo.commit.assert_called_once()
         mock_repo.refresh.assert_called()
 
     def test_create_or_get_tags_no_new_tags(self):
         tag_data = [
-            {"name": "Existing Tag", "description": "Existing Tag Desc", "vndb_id": "v456"},
+            {
+                "name": "Existing Tag",
+                "description": "Existing Tag Desc",
+                "vndb_id": "v456",
+            },
         ]
 
         mock_repo = MagicMock()

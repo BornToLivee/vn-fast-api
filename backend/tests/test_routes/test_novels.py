@@ -16,26 +16,32 @@ def mock_fetch_vndb_novel(vndb_id: str):
             "length": 100,
             "length_minutes": 120,
             "rating": 8.5,
-            "votecount": 500
+            "votecount": 500,
         }
     return None
 
+
 def mock_search_vndb_novels_by_name(query: str):
-    return [{
-        "id": "v1",
-        "title": "Test Novel",
-        "description": "Test description",
-        "image_url": "https://example.com/test.jpg",
-        "studio": "Test Studio",
-        "released": "2022-01-01",
-        "length": 100,
-        "length_minutes": 120,
-        "rating": 8.5,
-        "votecount": 500
-    }]
+    return [
+        {
+            "id": "v1",
+            "title": "Test Novel",
+            "description": "Test description",
+            "image_url": "https://example.com/test.jpg",
+            "studio": "Test Studio",
+            "released": "2022-01-01",
+            "length": 100,
+            "length_minutes": 120,
+            "rating": 8.5,
+            "votecount": 500,
+        }
+    ]
 
 
-@patch("app.services.vndb.VNDBService.search_novels_by_name", side_effect=mock_search_vndb_novels_by_name)
+@patch(
+    "app.services.vndb.VNDBService.search_novels_by_name",
+    side_effect=mock_search_vndb_novels_by_name,
+)
 def test_novel_search(mock_search, client):
     response = client.get("/novels/search/?query=test")
     assert response.status_code == 200
@@ -60,7 +66,7 @@ def test_read_novels(client, db):
         votecount=500,
         status="READING",
         language="RUSSIAN",
-        my_rating=8.0
+        my_rating=8.0,
     )
     db.add(novel)
     db.commit()
@@ -94,7 +100,7 @@ def test_read_novel_detail(client, db):
         votecount=500,
         status="READING",
         language="RUSSIAN",
-        my_rating=8.0
+        my_rating=8.0,
     )
     db.add(novel)
     db.commit()
@@ -125,7 +131,7 @@ def test_read_novel_detail_not_found(client, db):
         votecount=500,
         status="READING",
         language="RUSSIAN",
-        my_rating=8.0
+        my_rating=8.0,
     )
     db.add(novel)
     db.commit()
@@ -135,7 +141,9 @@ def test_read_novel_detail_not_found(client, db):
 
 
 @patch("app.services.vndb.VNDBService.fetch_novel", side_effect=mock_fetch_vndb_novel)
-@patch("app.services.vndb.VNDBService.fetch_novel_tags", return_value=["romance", "drama"])
+@patch(
+    "app.services.vndb.VNDBService.fetch_novel_tags", return_value=["romance", "drama"]
+)
 @patch("app.services.tag.TagService.create_or_get_tags", return_value=[])
 def test_create_novel(mock_tags, mock_fetch_tags, mock_fetch_novel, client):
     novel_create = {
@@ -152,6 +160,7 @@ def test_create_novel(mock_tags, mock_fetch_tags, mock_fetch_novel, client):
     assert data["studio"] == "Test Studio"
     assert data["language"] == "RUSSIAN"
 
+
 def test_create_novel_already_exists(client, db):
     novel = Novel(
         id=10,
@@ -167,18 +176,21 @@ def test_create_novel_already_exists(client, db):
         votecount=500,
         status="READING",
         language="RUSSIAN",
-        my_rating=8.0
+        my_rating=8.0,
     )
     db.add(novel)
     db.commit()
 
-    response = client.post("/novels/?vndb_id=v1", json={
-        "status": "READING",
-        "my_review": "Good novel!",
-        "my_rating": 7.0,
-        "language": "RUSSIAN",
-        "tags": []
-    })
+    response = client.post(
+        "/novels/?vndb_id=v1",
+        json={
+            "status": "READING",
+            "my_review": "Good novel!",
+            "my_rating": 7.0,
+            "language": "RUSSIAN",
+            "tags": [],
+        },
+    )
 
     assert response.status_code == 400
     assert response.json() == {"detail": "Novel already exists"}

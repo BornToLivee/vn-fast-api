@@ -1,4 +1,3 @@
-
 from typing import List
 
 
@@ -10,13 +9,14 @@ from app.schemas.novel import (
     NovelsListResponse,
 )
 
-from app.dependencies.services import tag_service_dependency, vndb_service_dependency, novel_service_dependency
+from app.dependencies.services import vndb_service_dependency, novel_service_dependency
 from app.dependencies.database import db_dependency
 
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import text
 
 router = APIRouter()
+
 
 @router.delete("/novels/delete")
 def clear_database(db: db_dependency):
@@ -61,9 +61,7 @@ def read_novel(novel_id: int, novel_service: novel_service_dependency):
 
 @router.post("/novels/", response_model=NovelsDetailResponse)
 async def create_novel(
-    vndb_id: str, 
-    novel_data: NovelCreate,
-    novel_service: novel_service_dependency
+    vndb_id: str, novel_data: NovelCreate, novel_service: novel_service_dependency
 ):
     new_novel = await novel_service.create_novel(novel_data, vndb_id)
     return new_novel

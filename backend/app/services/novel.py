@@ -7,12 +7,11 @@ from datetime import datetime
 
 
 class NovelService:
-    def __init__(self, db: Session, repo, vndb_service = None, tag_service = None):
+    def __init__(self, db: Session, repo, vndb_service=None, tag_service=None):
         self.db = db
         self.repo = repo
         self.vndb_service = vndb_service
         self.tag_service = tag_service
-
 
     def get_novels_list(self):
         try:
@@ -23,30 +22,30 @@ class NovelService:
         if not novels:
             logger.log("WARNING", "No novels found")
             return "No novels found"
-        
-        return novels
 
+        return novels
 
     def get_novel_by_id(self, novel_id: int):
         novel = self.repo.get_novel_by_id(novel_id)
         if not novel:
-            logger.log_exception(f"Novel with id {novel_id} not found", Exception("Novel not found"))
+            logger.log_exception(
+                f"Novel with id {novel_id} not found", Exception("Novel not found")
+            )
             raise HTTPException(status_code=404, detail="Novel not found")
-        
+
         return novel
-        
 
     async def create_novel(self, novel_data: NovelCreate, vndb_id: str):
         existing_novel = self.repo.get_novel_by_vndb_id(vndb_id)
         if existing_novel:
             logger.log("INFO", f"Novel with vndb_id {vndb_id} already exists")
             raise HTTPException(status_code=400, detail="Novel already exists")
-        
+
         novel_info = self.vndb_service.fetch_novel(vndb_id)
         if not novel_info:
             logger.log_exception(f"Novel details not found for vndb_id {vndb_id}")
             raise HTTPException(status_code=404, detail="Novel details not found")
-        
+
         tag_data = await self.vndb_service.fetch_novel_tags(vndb_id)
         if not tag_data:
             logger.log("WARNING", f"Novel tags not found for vndb_id {vndb_id}")
@@ -82,5 +81,5 @@ class NovelService:
         new_novel.tags = novel_tags
 
         self.repo.add(new_novel)
-        
+
         return new_novel

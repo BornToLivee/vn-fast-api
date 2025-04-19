@@ -11,13 +11,12 @@ class NovelRepository(BaseRepository):
         self.db.commit()
         self.db.refresh(novel)
         return novel
-    
+
     def get_novels_list(self):
         return self.db.query(Novel).all()
-    
+
     def get_novel_by_id(self, novel_id: int):
         return self.db.query(Novel).filter(Novel.id == novel_id).first()
-    
+
     def get_novel_by_vndb_id(self, vndb_id: str):
         return self.db.query(Novel).filter(Novel.vndb_id == vndb_id).first()
-    

@@ -1,6 +1,5 @@
 from typing import List
 
-from app.core.logger import logger
 from app.schemas.tag import TagList
 from app.dependencies.database import db_dependency
 from app.dependencies.services import tag_service_dependency

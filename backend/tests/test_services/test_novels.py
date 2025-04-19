@@ -1,14 +1,12 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 from fastapi import HTTPException
-from datetime import datetime
 from app.services.novel import NovelService
 from app.schemas.novel import NovelCreate
 
 
 class TestGetNovelsList:
     def test_returns_novels(self):
-        
         mock_repo = MagicMock()
         mock_repo.get_novels_list.return_value = ["novel1", "novel2"]
 
@@ -62,23 +60,35 @@ class TestCreateNovel:
         mock_repo.get_novel_by_vndb_id.return_value = None
 
         mock_vndb = MagicMock()
-        mock_vndb.fetch_novel = MagicMock(return_value={
-            "id": "v123", "title": "VN Title", "description": "desc",
-            "image": {"url": "http://image"}, "released": "2023-01-01",
-            "length": 5, "length_minutes": 300, "rating": 8.5,
-            "votecount": 50, "developers": [{"name": "Dev"}]
-        })
-        mock_vndb.fetch_novel_tags = AsyncMock(return_value=[
-            {"vndb_id": "g1", "name": "Test", "description": "desc"}
-        ])
+        mock_vndb.fetch_novel = MagicMock(
+            return_value={
+                "id": "v123",
+                "title": "VN Title",
+                "description": "desc",
+                "image": {"url": "http://image"},
+                "released": "2023-01-01",
+                "length": 5,
+                "length_minutes": 300,
+                "rating": 8.5,
+                "votecount": 50,
+                "developers": [{"name": "Dev"}],
+            }
+        )
+        mock_vndb.fetch_novel_tags = AsyncMock(
+            return_value=[{"vndb_id": "g1", "name": "Test", "description": "desc"}]
+        )
 
         mock_tag = MagicMock()
         mock_tag.name = "TagObj"
         mock_tags = MagicMock()
         mock_tags.create_or_get_tags.return_value = [mock_tag]
 
-        service = NovelService(db=None, repo=mock_repo, vndb_service=mock_vndb, tag_service=mock_tags)
-        novel_data = NovelCreate(status="planned", my_review="cool", my_rating=9.0, language="EN")
+        service = NovelService(
+            db=None, repo=mock_repo, vndb_service=mock_vndb, tag_service=mock_tags
+        )
+        novel_data = NovelCreate(
+            status="planned", my_review="cool", my_rating=9.0, language="EN"
+        )
 
         novel = await service.create_novel(novel_data, "v123")
 
@@ -92,7 +102,9 @@ class TestCreateNovel:
         mock_repo.get_novel_by_vndb_id.return_value = True
 
         service = NovelService(db=None, repo=mock_repo)
-        novel_data = NovelCreate(status="done", my_review="nice", my_rating=8, language="EN")
+        novel_data = NovelCreate(
+            status="done", my_review="nice", my_rating=8, language="EN"
+        )
 
         with pytest.raises(HTTPException) as exc:
             await service.create_novel(novel_data, "v123")
@@ -111,7 +123,9 @@ class TestCreateNovel:
         mock_logger = mocker.patch("app.services.novel.logger")
 
         service = NovelService(db=None, repo=mock_repo, vndb_service=mock_vndb)
-        novel_data = NovelCreate(status="done", my_review="nice", my_rating=8, language="EN")
+        novel_data = NovelCreate(
+            status="done", my_review="nice", my_rating=8, language="EN"
+        )
 
         with pytest.raises(HTTPException) as exc:
             await service.create_novel(novel_data, "v123")
