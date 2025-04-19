@@ -28,9 +28,7 @@ class NovelService:
     def get_novel_by_id(self, novel_id: int):
         novel = self.repo.get_novel_by_id(novel_id)
         if not novel:
-            logger.log_exception(
-                f"Novel with id {novel_id} not found", Exception("Novel not found")
-            )
+            logger.log_exception(f"Novel with id {novel_id} not found", Exception("Novel not found"))
             raise HTTPException(status_code=404, detail="Novel not found")
 
         return novel
